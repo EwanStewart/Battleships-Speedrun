@@ -1,10 +1,11 @@
 from square import Square
-import pygame 
+import pygame
 
 class Board:
 
     __board_size: int = (8,8)
     __square_list = []
+    ship_list = [[''], ['',''], ['','',''], ['','', '',''], ['','','','','']]
 
     def __init__(self, type, screen):
         self.__type = type      #define where to place the board. Player(0) left side of screen, Computer(1) right side of screen. 
@@ -16,12 +17,32 @@ class Board:
 
         for i in range(0, 64):
             square_x, square_y, letter = self.__square_list[i].getLocation()[0][0], self.__square_list[i].getLocation()[0][1], self.__square_list[i].getLocation()[1]
-
             if mpos[0] >=  square_x and mpos[0] <= square_x + 25:
                 if mpos[1] >= square_y and mpos[1] <= square_y + 25:
                     return letter
 
         return False
+        
+    def set_square_colour(self, arr):
+        __size = (25,25)
+
+
+        for letter in arr:
+            for i in range(0, 64):
+                if self.__square_list[i].getLocation()[1] == letter:
+                    x = self.__square_list[i].getLocation()[0][0]
+                    y = self.__square_list[i].getLocation()[0][1]
+                    if self.__type:
+                        x += 300
+                    self.__square_list[i].setEmpty(False)
+                    pygame.draw.rect(self.__screen, pygame.Color((255,0,0)), (x, y, __size[0], __size[1]))
+                    pygame.draw.rect(self.__screen, pygame.Color((0,0,0)), (x, y, __size[0], __size[1]), width=1)
+                    font = pygame.font.Font('freesansbold.ttf', 10)
+                    text = font.render(letter, True, (0,0,0))
+                    self.__screen.blit(text, (x + 5, y + 5))
+                    pygame.display.flip()
+
+
 
     def draw_board(self):
         __x = 0

@@ -1,5 +1,6 @@
 from square import Square
 import pygame
+import random
 
 class Board:
 
@@ -23,10 +24,8 @@ class Board:
 
         return False
         
-    def set_square_colour(self, arr):
+    def set_square_colour(self, arr, c):
         __size = (25,25)
-
-
         for letter in arr:
             for i in range(0, 64):
                 if self.__square_list[i].getLocation()[1] == letter:
@@ -35,12 +34,76 @@ class Board:
                     if self.__type:
                         x += 300
                     self.__square_list[i].setEmpty(False)
-                    pygame.draw.rect(self.__screen, pygame.Color((255,0,0)), (x, y, __size[0], __size[1]))
+                    pygame.draw.rect(self.__screen, pygame.Color(c), (x, y, __size[0], __size[1]))
                     pygame.draw.rect(self.__screen, pygame.Color((0,0,0)), (x, y, __size[0], __size[1]), width=1)
                     font = pygame.font.Font('freesansbold.ttf', 10)
                     text = font.render(letter, True, (0,0,0))
                     self.__screen.blit(text, (x + 5, y + 5))
                     pygame.display.flip()
+
+        
+   
+    def spawn_ai_ships(self, iValStart, iValEnd):
+        arr = []
+        for i in range(iValStart, iValEnd):    #loop for 5 ships
+            for j in range(0,i+1):  #for length of ship
+                if j == 0:                                             #if first square of ship
+                    while True:                                        #loop until starting position isn't taken and the ship can be placed in bounds
+                        randomStartingPoint = random.randint(0,64)
+                        startPoint = self.__square_list[randomStartingPoint].getLocation()[1]
+                        right = (int(startPoint[1]) + (len(self.ship_list[i])-1) <= 8)  #right is in bounds for length of ship
+                        left  = (int(startPoint[1]) - (len(self.ship_list[i])-1) >= 1)  #left is in bounds for length of ship
+                        down  = (ord(startPoint[0]) + (len(self.ship_list[i])-1) <=104) #down is in bounds for length of ship
+                        up    = (ord(startPoint[0]) - (len(self.ship_list[i])-1) >=97)  #up is in bounds for length of ship
+
+                        if (right or left or down or up) and self.__square_list[randomStartingPoint].getEmpty():
+                            arr.append(startPoint)
+                            self.ship_list[i][0] = startPoint
+                            self.__square_list[randomStartingPoint].setEmpty(False)
+                            break
+                else:
+                    while True:
+
+                        if down:
+                            nextPoint = str(chr(ord(startPoint[0]) + (j))) + str(startPoint[1])
+                        elif right:
+                            nextPoint = str(startPoint[0]) +  str(int(startPoint[1])+j)
+                        elif left:
+                            nextPoint = str(startPoint[0]) +  str(int(startPoint[1])-j)
+                        elif up:
+                            nextPoint = str(chr(ord(startPoint[0]) - (j))) + str(startPoint[1])
+            
+                        for square in range(0,64):
+                            if self.__square_list[square].getLocation()[1] == nextPoint:
+                                squareIndexValue = square
+                                break
+                    
+                        if self.__square_list[squareIndexValue].getEmpty():
+                            arr.append(nextPoint)
+                            self.ship_list[i][j] = nextPoint
+                            self.__square_list[squareIndexValue].setEmpty(False)
+                            break
+                        else:
+                            for b in range(0, len(arr)):
+                                for square in range(0,64):
+                                    if self.__square_list[square].getLocation()[1] == arr[b]:
+                                        squareIndexValue = square
+                                        self.__square_list[square].setEmpty(True)
+                                        break
+
+                            if self.ship_list[4][4] != 'a' and self.ship_list[4][4] != '':
+                                return
+
+                            for x in range(0, len(self.ship_list[i])):
+                                self.ship_list[i][x] = 'a'
+
+                            if self.ship_list[i][0] == 'a':
+                                self.spawn_ai_ships(i, (i+1))
+                                pass
+
+                            break  
+                                       
+            arr = []
 
 
 

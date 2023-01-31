@@ -2,6 +2,8 @@ import pygame, sys
 from board import Board
 from square import Square
 import pyautogui
+import random
+
 def create_window():    
     size = (600, 600)
     screen = pygame.display.set_mode(size)
@@ -55,17 +57,12 @@ def all_equal(iterator):
         return True
     return all(first == x for x in iterator)
 
-def spawn_enemy_ships(cBoard):
-    noOfSquares = 1
-    arr = ["a1"]
-    for i in range(0,1):
-        for j in range(0, noOfSquares):
-            cBoard.set_square_colour(arr)
-
-
-
 def start(pBoard, cBoard):
-    spawn_enemy_ships(cBoard)
+    cBoard.spawn_ai_ships(0, 5)
+    print(cBoard.ship_list)
+    for ko in range(0, len(cBoard.ship_list)):
+            colour = (random.randint(0,255), random.randint(0,255), random.randint(0,255))   #random colour for ship
+            cBoard.set_square_colour(cBoard.ship_list[ko], colour)
     pass
 
 def main():
@@ -80,7 +77,7 @@ def main():
     startGame = False
     temp = []
     buttonToggled = False
-    
+    start(player_board, computer_board)
     while True:
         for event in pygame.event.get():
             if not startGame:
@@ -104,7 +101,7 @@ def main():
                     if result:
                         if len(temp) < buttonToggled:
                             temp.append(result)
-                            player_board.set_square_colour(temp)
+                            player_board.set_square_colour(temp, (255,0,0))
                             if len(temp) == buttonToggled:
                                 player_board.ship_list[buttonToggled-1] = temp  #assign chosen square to board
                                 x = buttons[buttonToggled-1].getLocation()[0][0]
